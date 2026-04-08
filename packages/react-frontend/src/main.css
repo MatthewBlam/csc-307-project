@@ -1,88 +1,213 @@
-/* Primitive CSS - minimal base styles */
+/* Retro terminal / DOS aesthetic */
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
   font-size: 16px;
-  line-height: 1.5;
-  color: #333;
-  background: #fff;
+  line-height: 1.6;
+  color: #00ff41;
+  background: #0a0a0a;
   margin: 0;
   padding: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 65, 0.03) 2px,
+      rgba(0, 255, 65, 0.03) 4px
+    );
+}
+
+/* CRT scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.15) 3px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 860px;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 1.5rem 2rem;
+  border: 2px solid #00ff41;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 20px rgba(0, 255, 65, 0.03);
+  position: relative;
+}
+
+/* Corner decorations */
+.container::before {
+  content: '[ RECORDS DATABASE v1.0 ]';
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  color: #00ff41;
+  position: absolute;
+  top: -0.75rem;
+  left: 1rem;
+  background: #0a0a0a;
+  padding: 0 0.5rem;
+  letter-spacing: 0.1em;
 }
 
 h1, h2, h3 {
+  font-family: 'VT323', monospace;
+  font-size: 2rem;
   margin: 0 0 1rem;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+  letter-spacing: 0.1em;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 th, td {
   text-align: left;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #ddd;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #004d14;
 }
 
 th {
-  font-weight: 600;
-  background: #f5f5f5;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  background: #001a06;
+  color: #00ff41;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.6);
+  border-color: #00ff41;
+}
+
+tr:hover td {
+  background: #001a06;
+  color: #00ff41;
+}
+
+td {
+  color: #00cc34;
+}
+
+/* Blinking cursor effect on empty table */
+tbody:empty::after {
+  content: '> NO RECORDS FOUND_';
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: #006618;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 button {
   cursor: pointer;
-  padding: 0.25rem 0.75rem;
-  background: #dc3545;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
+  padding: 0.2rem 0.75rem;
+  background: transparent;
+  color: #ff3333;
+  border: 1px solid #ff3333;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: 0 0 6px rgba(255, 51, 51, 0.3);
+  transition: all 0.1s;
 }
 
 button:hover {
-  background: #b02a37;
+  background: #ff3333;
+  color: #0a0a0a;
+  box-shadow: 0 0 12px rgba(255, 51, 51, 0.7);
+}
+
+hr {
+  border: none;
+  border-top: 1px dashed #004d14;
+  margin: 1.5rem 0;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-width: 400px;
+  gap: 0.6rem;
+  max-width: 420px;
+  padding-top: 0.5rem;
+}
+
+form::before {
+  content: '> ADD NEW RECORD';
+  font-family: 'VT323', monospace;
+  font-size: 1.3rem;
+  color: #00ff41;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.6);
+  margin-bottom: 0.25rem;
 }
 
 label {
-  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #00cc34;
+}
+
+label::before {
+  content: '> ';
+  color: #006618;
 }
 
 input[type="text"] {
-  padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.35rem 0.6rem;
+  background: #001a06;
+  border: 1px solid #00ff41;
+  color: #00ff41;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 1rem;
   width: 100%;
+  outline: none;
+  box-shadow: 0 0 6px rgba(0, 255, 65, 0.2);
+  caret-color: #00ff41;
+}
+
+input[type="text"]:focus {
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.5);
+  border-color: #00ff41;
 }
 
 input[type="button"] {
   cursor: pointer;
-  padding: 0.4rem 1rem;
-  background: #0d6efd;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  margin-top: 0.4rem;
+  padding: 0.4rem 1.2rem;
+  background: transparent;
+  color: #00ff41;
+  border: 1px solid #00ff41;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   width: fit-content;
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+  transition: all 0.1s;
 }
 
 input[type="button"]:hover {
-  background: #0b5ed7;
+  background: #00ff41;
+  color: #0a0a0a;
+  box-shadow: 0 0 16px rgba(0, 255, 65, 0.7);
 }

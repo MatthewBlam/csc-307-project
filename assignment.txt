@@ -1,0 +1,575 @@
+1 - Creating Our Own First App
+
+We’ll reuse the environment we installed in the previous section, but we’ll not use any of their application code. So, go ahead and delete all the files in src folder. Let’s create our own boilerplate files without any bloat in our /src folder: main.css and main.jsx. In main.css, just copy-and-paste the contents of Primitive CSS into the file. If you prefer, you can use Bootstrap or whatever CSS framework you want instead of Primitive CSS, or nothing at all (just pure HTML without any style).
+
+Now in main.jsx, here’s the code:
+
+// src/main.jsx
+import React from "react";
+import ReactDOMClient from "react-dom/client";
+import "./main.css";
+
+function MyApp() {
+  return (
+    <div>
+      <h1>Hello, React!</h1>
+    </div>
+  );
+}
+
+// Create the container
+const container = document.getElementById("root");
+
+// Create a root
+const root = ReactDOMClient.createRoot(container);
+
+// Initial render: Render an element to the Root
+root.render(<MyApp />);
+
+In this main.jsx, we’re importing React, ReactDOMClient, and the style file (CSS). Then we define the MyApp component as a function that returns what is supposed to be rendered on the screen. React functional components must return an element to be rendered on the page. The element can be a nested structure as you see in the example.
+
+By the way, we are using the .jsx file suffix because our file does not contain standard Javascript, but rather JSX, an extension to Javascript, created by the React team, which allows us to write expressions that resemble HTML, such as <div><h1>Hello, React!</h1></div>. Browsers will not accept this kind of code directly, so we need Vite to transpile it to standard Javascript. (Technically, the name of the standard language is ECMAScript.)
+
+The very last line in that file is going to cause our React component (named here as ‘MyApp’) to be injected in the root of an HTML page that goes into the browser. If you look at the index.html file, you will see where this element with id="root" occurs.
+2 - More Components and Modularizing them in Separate Files
+
+Almost everything in React consists of components, which can be functional components or class components (we are only using functional components). Although not required, it’s a good practice to keep groups of related components in separate files. It helps to read and navigate through a larger codebase, and ultimately maintain it over time. So we’ll extract our MyApp component to a separate file. As a result, we’ll have:
+
+// src/main.jsx
+import React from "react";
+import ReactDOMClient from "react-dom/client";
+import MyApp from "./MyApp";
+import "./main.css";
+
+const container = document.getElementById("root");
+
+// Create a root
+const root = ReactDOMClient.createRoot(container);
+
+// Initial render:
+root.render(<MyApp />);
+
+// src/MyApp.jsx
+import React from "react";
+
+function MyApp() {
+  return (
+    <div>
+      <h1>Hello, React!</h1>
+    </div>
+  );
+}
+export default MyApp;
+
+Note the last line in the MyApp.jsx file. It makes the component available to be imported into other components or files (like we did in the main.jsx — see the import). Also, notice that src/MyApp.jsx is imported simply as src/MyApp. Vite allows this because the file may actually be standard Javascript (with a .js suffix), Typescript (with a .ts suffix), or TSX (with a .tsx suffix). Vite will look for any of these files, and convert them to Javascript, to satisfy the import.
+
+Now, let’s create another component. We’re going to create a table in the page. Create Table.jsx, and fill it with the following sample data.
+
+// src/Table.jsx
+import React from "react";
+
+function Table() {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Job</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Charlie</td>
+          <td>Janitor</td>
+        </tr>
+        <tr>
+          <td>Mac</td>
+          <td>Bouncer</td>
+        </tr>
+        <tr>
+          <td>Dee</td>
+          <td>Aspiring actress</td>
+        </tr>
+        <tr>
+          <td>Dennis</td>
+          <td>Bartender</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+export default Table;
+
+With that, we just created a new component called Table. Essentially, this is a custom made HTML table that we created as a React component. Note that we capitalize React component names (as we did with MyApp component) to differentiate them from regular HTML elements. Back in MyApp.jsx, we can load in the Table, first by importing it in, then by loading it into the return block of MyApp, where before we had “Hello, React!”. I also added the style class of the outer container (note the className property of the div element pointing to a style class from the CSS file).
+
+// src/MyApp.jsx
+import React from "react";
+import Table from "./Table";
+
+function MyApp() {
+  return (
+    <div className="container">
+      <Table />
+    </div>
+  );
+}
+
+export default MyApp;
+
+If you check back on your live environment, you’ll see the Table loaded in. (If you don’t see any results, you may need to restart the npm run dev process). Also, if for some reason you closed your browser, you can reload the app by accessing again http://localhost:5173.
+3 - Components and Sub-components
+
+Besides nesting HTML elements we can also nest React components. Let’s take our Table and make two simple components for it - a table header, and a table body. First, the table header then the body.
+
+// src/Table.jsx
+function TableHeader() {
+  return (
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Job</th>
+      </tr>
+    </thead>
+  );
+}
+
+function TableBody() {
+  return (
+    <tbody>
+      <tr>
+        <td>Charlie</td>
+        <td>Janitor</td>
+      </tr>
+      <tr>
+        <td>Mac</td>
+        <td>Bouncer</td>
+      </tr>
+      <tr>
+        <td>Dee</td>
+        <td>Aspiring actress</td>
+      </tr>
+      <tr>
+        <td>Dennis</td>
+        <td>Bartender</td>
+      </tr>
+    </tbody>
+  );
+}
+
+Now our Table file will look like this. Note that the TableHeader and TableBody components are all in the same file, and being used by the Table component.
+
+// src/Table.jsx
+function TableHeader() { … }
+function TableBody() { … }
+
+function Table() {
+    return (
+      <table>
+        <TableHeader />
+        <TableBody />
+      </table>
+    );
+}
+
+export default Table;
+
+Everything should appear as it did before. As you can see, components can be nested in other components. We kept the table components (Table, TableHeader, and TableBody) in the same file since they’re related to each other so there’s no need to define them in separate files.
+4 - Props
+
+Right now, we have a cool Table component, but the data is being hard-coded. One of the big advantages about React is how it handles data, and it does so with properties, referred to as props, and with state. Now, we’ll focus on handling data with props. In Part II we’ll deal with state handling. First, let’s remove all the data from our TableBody component.
+
+// src/Table.jsx
+function TableBody() {
+  return <tbody />;
+}
+
+Then let’s move all that data to an array of objects. We’ll have to create this array inside our top component in the hierarchy MyApp and then pass the data down to the children.
+
+// src/MyApp.jsx
+const characters = [
+  {
+    name: "Charlie",
+    job: "Janitor",
+  },
+  {
+    name: "Mac",
+    job: "Bouncer",
+  },
+  {
+    name: "Dee",
+    job: "Aspring actress",
+  },
+  {
+    name: "Dennis",
+    job: "Bartender",
+  },
+];
+
+function MyApp() {
+  return (
+    <div className="container">
+      <Table />
+    </div>
+  );
+}
+
+Now, we’re going to pass the data through to the child component (Table) with properties. We can call the property whatever we want, as long as it’s not a reserved keyword, so I’ll go with characterData. The data I’m passing through is the characters variable, and I’ll put curly braces around it as it’s a JavaScript expression within an HTML element.
+
+// src/MyApp.jsx
+return (
+  <div className="container">
+    <Table characterData={characters} />
+  </div>
+);
+
+Now that data is being passed through to Table, we have to work on accessing it from the other side.
+
+// src/Table.jsx
+function TableHeader() { … }
+function TableBody() { … }
+
+function Table(props) {
+    return (
+      <table>
+        <TableHeader />
+        <TableBody characterData={props.characterData} />
+      </table>
+    );
+}
+
+In Table, we can access all props through this.props. We’re only passing one property through,characterData, so we’ll use props.characterData to retrieve that data. Since our Table component actually consists of two smaller simple components, I’m going to pass it through to the TableBody, once again through props. Right now, TableBody takes no parameters and returns a single tag. We’re going to pass the props through as a parameter, and map through the array to return a table row for each object in the array. This map will be contained in the rows variable, which we’ll return as an expression.
+
+// src/Table.jsx
+function TableHeader() { … }
+function TableBody(props) {
+  const rows = props.characterData.map((row, index) => {
+    return (
+      <tr key={index}>
+        <td>{row.name}</td>
+        <td>{row.job}</td>
+      </tr>
+    );
+   }
+  );
+  return (
+      <tbody>
+        {rows}
+       </tbody>
+   );
+}
+
+function Table(props) {
+    return (
+      <table>
+        <TableHeader />
+        <TableBody characterData={props.characterData} />
+      </table>
+    );
+}
+export default Table;
+
+If you view the resulting page of the app, all the data is loading in now. You’ll notice we’ve added a key index to each table row. You should always use keys when making lists in React, as they help identify each list item. We’ll also see how this is necessary in another assignment when we want to manipulate list items. Props are an effective way to pass existing data to a React component, however the component cannot change the props - they are read-only. In the next React assignment (Part II), we’ll learn how to use state to have further control over handling data in React.
+5 - Managing State
+
+So far, we’re storing our character data in an array in a variable, and passing it into the app as props. This is good to start, but imagine if we want to be able to delete an item from the array. With props, we have a one-way data flow, but with state we can update private data from a component.
+
+You can think of state as any data that should be saved and modified without necessarily being added to a database - for example, adding and removing items from a shopping cart before confirming your purchase.
+
+There are different ways to handle state in React. Since we’re using React functional components, we’ll use React Hooks. Hooks were added to React in 2018 as a way to implement state and other side-effects with functional components. Previously, a stateful components were implemented using classes. There are tons of materials online to go in-depth about it but the official React doc is a good starting point.
+
+To start handling state with React Hooks, we need to understand what our state is. In our case, it will be the characters array. And we will use the so-called useState() hook to add some local state to the MyApp component. The useState call returns a pair: the current state value and a function that lets you update it. You can call this function from an event handler or somewhere else.
+
+// src/MyApp.jsx
+import React, { useState } from "react";
+import Table from "./Table";
+
+function MyApp() {
+  const [characters, setCharacters] = useState([
+    {
+      name: "Charlie",
+      job: "Janitor",
+    }, // the rest of the data
+  ]);
+
+  return (
+    <div className="container">
+      <Table characterData={characters} />
+    </div>
+  );
+}
+
+Our data is now officially contained in the state owned by the MyApp component (rather than as a constant in MyApp.jsx module). To retrieve the state, we can still reference the characters variable.
+
+Since we want to be able to remove a character from the table, we’re going to create a removeCharacter method on the parent MyApp component. You can create a list of characters except the one you want to remove by using the filter function, which does not update the existing array but rather creates a new array. The filter function is a powerful Javascript built-in function, and a preferred method for modifying arrays in JavaScript.
+
+You must use setCharacters() to modify the state instead of trying to assign a new value directly to characters. (This is why we were able to declare characters to be const). When you call setCharacters in the component, React automatically updates the child components inside of it too (that is, re-rendering the child components to update them).
+
+// src/MyApp.jsx
+
+import React, { useState } from "react";
+import Table from "./Table";
+
+function MyApp() {
+  const [characters, setCharacters] = useState([
+    {
+      name: "Charlie",
+      job: "Janitor", // the rest of the data
+    },
+  ]);
+
+  function removeOneCharacter(index) {
+    const updated = characters.filter((character, i) => {
+      return i !== index;
+    });
+    setCharacters(updated);
+  }
+}
+
+Also, note that we defined the removeOneCharacter function within the MyApp main function. With that, we can be in the right scope to refer to characters and setCharacters, and since this function will only be used within the MyApp component (which is a function by itself). BTW, we’ll soon see how that new function will be called.
+
+Now we have to pass that function through to the component, and render a button next to each character that can invoke the function. We’ll pass the removeOneCharacter function through as a prop to Table.
+
+Inside src/MyApp.jsx (only showing the return – the component render)
+
+return (
+  <div className="container">
+    <Table characterData={characters} removeCharacter={removeOneCharacter} />
+  </div>
+);
+
+Note the added prop is removeCharacter and its value in that scope is removeOneCharacter.
+
+Since our Table is passing the props down to TableBody, we’re going to have to pass the new prop through as well, just like we did with the characterData.
+
+// src/Table.jsx
+function Table(props) {
+  return (
+    <table>
+      <TableHeader />
+      <TableBody
+        characterData={props.characterData}
+        removeCharacter={props.removeCharacter}
+      />
+    </table>
+  );
+}
+
+Now, here’s where that index we defined in the removeOneCharacter() method comes in. In the TableBody component, we’ll pass the key/index through as a parameter, so the filter function knows which item to remove. We’ll create a button with an onClick and pass it through. If you’re not very familiar with HTML, button is an HTML tag that has an attribute called onClick used to assign action when the button is clicked. The only change in the TableBody component is in the return call by adding a new column to the table that’ll have a button with an action.
+
+Inside src/Table.jsx (only changing inside the return of the TableBody component)
+Adding Delete Button
+
+<tr key={index}>
+  <td>{row.name}</td>
+  <td>{row.job}</td>
+  <td>
+    <button onClick={() => props.removeCharacter(index)}>Delete</button>
+  </td>
+</tr>
+
+Great! Now we have delete buttons on a new column and we can modify our state by deleting a character. To test it out, try deleting one of the characters.
+
+You should now understand how state gets initialized and how it can be modified.
+
+Oh, and if you want to add a column label to that new column we added in the table body (see the ‘Remove’ label in the picture above), guess where you should change it? Go ahead and do it for aesthetic purposes.
+6 - Committing changes and pushing them to GitHub
+
+It’s always a good practice to breakdown your programming sessions into small commits. So, now it’s a good time to commit the changes you’ve made up to this step. Remember to stage your files, otherwise, there’s nothing to commit. Git is tracking your changes. Run git status to check what git has to tell you. Then, run git add <files> to stage the files (you can stage them at once using regular expressions or writing the file name one by one).
+
+Once they’re staged, run git commit -m 'your commit msg'.
+
+Finally, run git push to push your commit to GitHub.
+
+--
+7 - Creating a form to input data
+
+Back to the project, now we have data stored in state, and we can remove any item from the state. However, what if we wanted to be able to add new data to state? In a real-world application, you’d more likely start with empty state and add to it, such as with a to-do list or a shopping cart.
+
+Before anything else, let’s remove all the hard-coded data from characters, as we’ll be updating that through the form now.
+
+// src/MyApp.jsx (empty state)
+const [characters, setCharacters] = useState([]);
+
+Now let’s go ahead and create a Form component in a new file called Form.js. We’re going to set the initial state of the Form to be an object with some empty properties.
+
+// src/Form.jsx
+import React, { useState } from "react";
+
+function Form() {
+  const [person, setPerson] = useState({
+    name: "",
+    job: "",
+  });
+}
+export default Form;
+
+Our goal for this form component is to update the state of Form every time a field is changed in the form, and when we submit, all that data will pass to the MyApp state (feeding the list of characters), which will then update Table. Remember that when a component state changes, it triggers an update on the child components. State handling is where all the magic happens in React.
+
+First, we’ll make the function that will run every time a change is made to an <input>. The event will be passed through, and we’ll set the state of Form to have the name and job of the inputs.
+
+// Add the following code to src/Form.jsx
+function handleChange(event) {
+  const { name, value } = event.target;
+  if (name === "job") setPerson({ name: person["name"], job: value });
+  else setPerson({ name: value, job: person["job"] });
+}
+
+The function above should be defined inside the Form function since it sets the state defined inside the Form component. They need to be in the same scope.
+
+Also, note that there’s only one event at a time (either editing/changing the name field or the job field), so the function above will be called every time one of the fields (name or job) changes its value.
+
+Let’s get this working before we move on to submitting the form. In the render (return from Form), let’s get our two properties from state, and assign them as the values that correspond to the proper form keys, so the state (person) will be our source of truth for the form fields. We’ll run the handleChange() method as the onChange of the input.
+Controlled Inputs
+
+// src/Form.jsx
+return (
+  <form>
+    <label htmlFor="name">Name</label>
+    <input
+      type="text"
+      name="name"
+      id="name"
+      value={person.name}
+      onChange={handleChange}
+    />
+    <label htmlFor="job">Job</label>
+    <input
+      type="text"
+      name="job"
+      id="job"
+      value={person.job}
+      onChange={handleChange}
+    />
+  </form>
+);
+
+You can read out more about the HTML tag here.
+
+In MyApp.jsx, we can render the form below the table.
+
+A new import for bringing in the Form component to src/MyApp.js
+
+// src/MyApp.jsx (Adding the form component after the table)
+import Form from "./Form";
+
+// ... in component MyApp:
+return (
+  <div className="container">
+    <Table characterData={characters} removeCharacter={removeOneCharacter} />
+    <Form />
+  </div>
+);
+
+8 - Debugging frontend code on the browser (Optional)
+
+Some popular browsers such as Chrome and Firefox offer developer tools that allow us to debug our code on the frontend. For instance, if you’re on Chrome you can either right-click on a page and select ‘inspect’ or you can access View -> Developer -> Developer Tools.
+
+I recommend you install these extensions to improve your experience in debugging React code using the browser developer tool: Chrome React dev tools by FB and the same for Firefox.
+
+If you install these tools, you should be able to open the developer tools in the browser and see Form being updated every time you change the input fields (e.g., type something and click outside the input field will trigger the onChange event).
+9 - Submitting form data
+
+Before we actually start this next step, it’s also a good time to commit current changes. In the future, you’ll understand it’s much better to collaborate in a project with small commits. Make this a habit while coding. You should perform here the same you did in Step 4.
+
+Cool. Last step is to allow us to actually submit that data and update the parent state. We’ll create a function called updateList() on MyApp that will update the state by taking the existing characters and adding the new person parameter, using the ES6 spread operator.
+
+// src/MyApp.jsx (a new function inside the MyApp function)
+function updateList(person) {
+  setCharacters([...characters, person]);
+}
+
+Make sure you defined the function above as a nested function (that function goes inside the MyApp function). And let’s make sure we pass that through as a parameter on Form. Note that the Form capitalized is our React component.
+
+<Form handleSubmit={updateList} />
+
+Now in Form, we’ll create a function called submitForm() that will call handleSubmit which was passed through props, and pass the Form state through as the person parameter we defined earlier. It will also reset the state to the initial state, to clear the form after submit.
+
+// Inside src/Form.jsx (a new inner function)
+function submitForm() {
+  props.handleSubmit(person);
+  setPerson({ name: "", job: "" });
+}
+
+Again, note the function above is a nested function. It should be defined inside the Form function since it uses the person state that is within the Form scope.
+
+And since we’re now using handleSubmit prop (code above), we need to make it visible by adding props as a parameter of the Form function.
+
+// src/Form.jsx (adding the props parameter)
+function Form(props) {
+	... //same function just showing we add a parameter 'props'
+}
+
+Finally, we’ll add a submit button to submit the form. We’re using an onClick instead of an onSubmit since we’re not using the standard submit functionality (i.e., we’re not sending the form to a backend component over the network). The click will call the submitForm we just made.
+
+<input type="button" value="Submit" onClick={submitForm} />
+
+Voila! The app is complete! We can add pairs of names and jobs to the table and delete them. Since the Table and TableBody were already pulling from the state, it will display properly.
+
+To review what you did, take a moment to write down the final component hierarchy, mark what state each component handles, and in what direction data is moved around on each action (typing in the form, submitting form, and deleting rows).
+10 - Turning your results in
+
+If you followed the previous steps, all you have to do here is to commit and push your last changes. You will do exactly what you did in Step 10 (stage files, commit them, and push to GitHub). Don’t forget to push them to GitHub, otherwise, it will stay on your local computer and nobody will be able to see your work.
+
+On the Canvas assignment (React first app) submit the URL of your repository on GitHub. I’ll use it to check your work and grade it. If your repo is private, please add me to it so I can access it (my GH username is laranicholsbrown).
+
+Also, make sure your code on GH is runnable with npm start without having to change directories or branches. I will clone or fork your repo and npm start run on the root folder at the main branch (but double check that you aren’t storing node_modules in GitHub as it makes the download time longer).
+
+If you reached this point, good job! You just completed your first React app with Hooks while following a basic git/github workflow. You used skills, tools, and practices that are valued in our industry.
+
+Note: If you couldn’t finish the assignment completely you can still turn it in and get partial credit. However, you have to do at least the GitHub part and then post the repo URL so I can check what other parts of the assignment you did.
+Git Workflow
+
+git status
+git add .
+git commit -m "your commit message"
+git push
+
+Final Notes
+
+    Props are read-only
+    State is mutable via setState
+    Data flows top-down
+    Actions (like delete/add) flow bottom-up via functions
+
+Submission
+
+    Push your code to GitHub
+    Submit your repo URL
+    Ensure it runs (from the react-frontend folder) with:
+
+npm run start
+
+🎉 Congrats! You built your first React app with state, props, and forms
+
+
+ Some Rubric
+Some Rubric
+Criteria 	Ratings 	Pts
+This criterion is linked to a Learning Outcome the repo is set up as a monorepo
+with packages/react-frontend folder and separate package.json files in the root and react-frontend
+	
+15 pts Full Marks
+0 pts No Marks
+	
+15 pts
+This criterion is linked to a Learning Outcome the app starts
+Running `npm run start` or 'npm run dev' in react-frontend
+	
+15 pts Full Marks
+0 pts No Marks
+	
+15 pts
+This criterion is linked to a Learning Outcome the app "works” as expected
+	
+15 pts Full Marks
+0 pts No Marks
+	
+15 pts
+This criterion is linked to a Learning Outcome the app starts by running `npm run start` in the root
+	
+5 pts Full Marks
+0 pts No Marks
+	
+5 pts
+Total Points: 50

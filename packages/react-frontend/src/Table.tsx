@@ -1,4 +1,5 @@
 interface Character {
+  id: string;
   name: string;
   job: string;
 }
@@ -12,6 +13,7 @@ function TableHeader() {
   return (
     <thead>
       <tr>
+        <th>ID</th>
         <th>Name</th>
         <th>Job</th>
         <th>Remove</th>
@@ -23,7 +25,8 @@ function TableHeader() {
 function TableBody({ characterData, removeCharacter }: TableBodyProps) {
   const rows = characterData.map((row, index) => {
     return (
-      <tr key={index}>
+      <tr key={row.id}>
+        <td>{row.id}</td>
         <td>{row.name}</td>
         <td>{row.job}</td>
         <td>

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Table from "./Table";
 import Form from "./Form";
 
 interface Character {
+  id: string;
   name: string;
   job: string;
 }
@@ -10,13 +11,58 @@ interface Character {
 function MyApp() {
   const [characters, setCharacters] = useState<Character[]>([]);
 
-  function removeOneCharacter(index: number) {
-    const updated = characters.filter((_character, i) => i !== index);
-    setCharacters(updated);
+  function fetchUsers() {
+    const promise = fetch("http://localhost:8000/users");
+    return promise;
   }
 
-  function updateList(person: Character) {
-    setCharacters([...characters, person]);
+  useEffect(() => {
+    fetchUsers()
+      .then((res) => res.json())
+      .then((json) => setCharacters(json["users_list"]))
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+  function postUser(person: Omit<Character, "id">) {
+    const promise = fetch("http://localhost:8000/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(person),
+    });
+    return promise;
+  }
+
+  function updateList(person: Omit<Character, "id">) {
+    postUser(person)
+      .then((res) => {
+        if (res.status === 201) {
+          return res.json();
+        }
+        throw new Error("Failed to create user");
+      })
+      .then((newUser: Character) => setCharacters([...characters, newUser]))
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  function removeOneCharacter(index: number) {
+    const character = characters[index];
+    fetch(`http://localhost:8000/users/${character.id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (res.status === 204) {
+          setCharacters(characters.filter((_c, i) => i !== index));
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   return (

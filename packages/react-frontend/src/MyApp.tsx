@@ -3,7 +3,7 @@ import Table from "./Table";
 import Form from "./Form";
 
 interface Character {
-  id: string;
+  _id: string;
   name: string;
   job: string;
 }
@@ -25,7 +25,7 @@ function MyApp() {
       });
   }, []);
 
-  function postUser(person: Omit<Character, "id">) {
+  function postUser(person: Omit<Character, "_id">) {
     const promise = fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
@@ -36,7 +36,7 @@ function MyApp() {
     return promise;
   }
 
-  function updateList(person: Omit<Character, "id">) {
+  function updateList(person: Omit<Character, "_id">) {
     postUser(person)
       .then((res) => {
         if (res.status === 201) {
@@ -52,7 +52,7 @@ function MyApp() {
 
   function removeOneCharacter(index: number) {
     const character = characters[index];
-    fetch(`http://localhost:8000/users/${character.id}`, {
+    fetch(`http://localhost:8000/users/${character._id}`, {
       method: "DELETE",
     })
       .then((res) => {
